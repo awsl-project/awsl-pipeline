@@ -32,10 +32,10 @@ jobs:
 
       - name: Diff
         run: |
-          versions=`helm history awsl`
-          if [ ! -z "$versions" ]
+          helmlist=`helm list -n awsl`
+          if [ ! -z "$helmlist" ]
           then
-              echo $versions
+              echo $helmlist
               helm diff upgrade awsl -n awsl .
           else
               echo "No helm history"

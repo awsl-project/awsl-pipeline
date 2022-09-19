@@ -1,0 +1,39 @@
+name: Deploy awsl
+on:
+  workflow_dispatch:
+
+jobs:
+  deployment:
+    name: Deploy awsl
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: 'https://github.com/awsl-project/helm-awsl.git'
+
+      - name: Create secret
+        run: |
+          mkdir -p $HOME/.kube/
+          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+          echo "${{ secrets.HELM_SECRET }}" > templates/secret.yaml
+
+      - name: Install helm
+        run: |
+          cd /tmp
+          curl -LO https://get.helm.sh/helm-v3.8.0-linux-amd64.tar.gz
+          tar -zxvf helm-v3.8.0-linux-amd64.tar.gz
+          mv linux-amd64/helm /usr/local/bin/helm
+          helm version
+
+      - name: Lint helm charts
+        run: helm lint .
+
+      - name: Deploy
+        run: |
+          helm upgrade --install awsl --timeout 10m -n awsl .
+
+      - name: CleanUp
+        run: |
+          rm $HOME/.kube/config
+          rm templates/secret.yaml

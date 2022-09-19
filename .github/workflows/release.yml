@@ -36,6 +36,7 @@ jobs:
           if [ ! -z "$helmlist" ]
           then
               echo $helmlist
+              helm plugin install https://github.com/databus23/helm-diff
               helm diff upgrade awsl -n awsl .
           else
               echo "No helm history"

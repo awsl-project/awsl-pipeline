@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          repository: 'https://github.com/awsl-project/helm-awsl.git'
+          repository: "awsl-project/helm-awsl"
 
       - name: Create secret
         run: |
@@ -28,6 +28,17 @@ jobs:
 
       - name: Lint helm charts
         run: helm lint .
+
+      - name: Diff
+        run: |
+          versions=`helm history awsl`
+          if [ ! -z "$versions" ]
+          then
+              echo $versions
+              helm diff upgrade awsl -n awsl .
+          else
+              echo "No helm history"
+          fi
 
       - name: Deploy
         run: |
